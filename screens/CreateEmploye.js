@@ -52,7 +52,7 @@ const CreateEmploye = () => {
           handleUpload(newFile)
         }
       } else {
-        Alert.alert('Permission denied')
+        Alert.alert('Permission denied') 
       }
     }
 
@@ -67,7 +67,6 @@ const CreateEmploye = () => {
         body: data,
       }).then(res => res.json())
       .then(data => setPictue(data.url), setModel(false))
-      
       
     }
      
