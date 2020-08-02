@@ -1,20 +1,59 @@
-import React, { Component } from 'react';
-import { View, Text, Image, StyleSheet, Linking, Platform } from 'react-native';
+import React from 'react';
+import { View, Text, Image, StyleSheet, Linking, Platform, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Title, Card, Button } from 'react-native-paper';
 import { MaterialIcons, Feather, FontAwesome } from '@expo/vector-icons';
 
 
 const Profile = (props) => {
-const {name, email, phone, picture, salery, position} = props.route.params
+const {_id, name, email, phone, picture, salery, position} = props.route.params
     
     const profile = () => {
         if(Platform.OS === "android"){
-            Linking.openURL("tel: 123456")
+            Linking.openURL(`tel: ${phone}`)
         } else {
-            Linking.openURL("telpromt: 123456")
+            Linking.openURL(`telpromt: ${phone}`)
         }
     }
+
+    const deleteContact = (_id) => {
+        fetch('https://pacific-earth-03921.herokuapp.com/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            id: _id
+        })
+        })
+        .then(res => res.json())
+        .then(data => {
+            Alert.alert(`Profile ${data.name} deleted `)
+            props.navigation.navigate('Home')
+        })
+        .catch(err => console.log(err));
+    }
+
+    
+    const editContact = () => {
+        fetch('https://pacific-earth-03921.herokuapp.com/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                id: _id,
+                name,
+                email,
+                phone,
+                salery,
+                picture,
+                position
+            })
+            })
+            .then(res => res.json())
+            .then(() => {
+                props.navigation.navigate('Create', props.route.params)
+            })
+            .catch(err => console.log(err));
+    }
+
     return(
        <View style={styles.root}>
            <LinearGradient
@@ -30,7 +69,7 @@ const {name, email, phone, picture, salery, position} = props.route.params
             <Text style={{fontSize: 18}}>{position}</Text>
         </View>
 
-        <Card style={styles.card} onPress={() => Linking.openURL("mailto: newday@gmail.com")}>
+        <Card style={styles.card} onPress={() => Linking.openURL(`mailto: ${email}`)}>
             <View style={{flexDirection: 'row', margin: 10}}>
             <MaterialIcons style={{marginRight: 8}} name="email" size={24} color="skyblue" />
             <Text style={{fontSize: 18}}>{email}</Text>
@@ -51,15 +90,10 @@ const {name, email, phone, picture, salery, position} = props.route.params
             </View>
         </Card>
 
-        {/* <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-        <Button style={{margin: 5}} icon="account-edit" theme={theme} mode="contained" />
-        <Button style={{margin: 5}} icon="camera" theme={theme} mode="contained" /> 
-        </View> */}
-
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                <Button style={{margin: 5}} icon="account-edit" theme={theme} mode="contained"> edit</Button>
+                <Button onPress={() => editContact(_id)}  style={{margin: 5}} icon="account-edit" theme={theme} mode="contained"> edit</Button>
 
-                <Button style={{margin: 5}} icon="delete" theme={theme} mode="contained" >delete </Button>
+                <Button onPress={() => deleteContact(_id)} style={{margin: 5}} icon="delete" theme={theme} mode="contained" >delete </Button>
             </View>
         
 

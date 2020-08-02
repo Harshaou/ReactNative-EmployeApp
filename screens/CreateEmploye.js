@@ -1,16 +1,67 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Modal, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Modal, Alert, KeyboardAvoidingView } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions'; 
 
-const CreateEmploye = () => {
+const CreateEmploye = (props) => {
+  const {navigation} = props
+
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
     const [salery, setSalery] = useState('');
-    const [pictue, setPictue] = useState('');
+    const [position, setPosition] = useState('');    
+    const [picture, setPicture] = useState('');
     const [model, setModel] = useState(false);
+
+    useEffect(() => {
+      handleEdit()
+    },[]);
+
+    
+   const handleEdit = () => {
+    if(props.route.params){
+      const {name, email, phone, picture, salery, position} = props.route.params
+      setName(name)
+      setPhone(phone)
+      setPicture(picture)
+      setEmail(email)
+      setSalery(salery)
+      setPosition(position)
+    }
+   }
+
+   const handleSave = () => {
+    if(props.route.params){
+      const {_id } = props.route.params
+      const id = _id
+        fetch('https://pacific-earth-03921.herokuapp.com/update', {
+        method: 'post',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id, name, email, phone, salery, picture, position})
+      })
+        .then((response) => response.json())
+        .then(data => {
+          console.log(data)
+          navigation.navigate('Home')
+        })
+        .catch((error) => console.error('Error:', error))
+    } else {
+        fetch('https://pacific-earth-03921.herokuapp.com/send', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, email, phone, salery, picture, position})
+        })
+          .then((response) => response.json())
+          .then(data => {
+            Alert.alert(`${data.name} is added`)
+            navigation.navigate('Home')
+          })
+          .catch((error) => console.error('Error:', error))
+    }
+   }
+
 
     const pickFromGallery = async () => {
       const {granted} = await Permissions.askAsync(Permissions.CAMERA_ROLL)
@@ -66,15 +117,15 @@ const CreateEmploye = () => {
         method: 'post',
         body: data,
       }).then(res => res.json())
-      .then(data => setPictue(data.url), setModel(false))
+      .then(data => setPicture(data.url), setModel(false))
       
     }
      
 
     return (
-        <View style={styles.root}>
+        <KeyboardAvoidingView behavior={position} style={styles.root}>
         <TextInput style={styles.inputStyle}
-        label="Name" value={name} mode='outlined'
+        label="name" value={name} mode='outlined'
         theme={theme} onChangeText={text => setName(text)} />
 
         <TextInput style={styles.inputStyle}
@@ -86,14 +137,19 @@ const CreateEmploye = () => {
         mode='outlined' theme={theme} onChangeText={text => setPhone(text)} />
 
         <TextInput style={styles.inputStyle}
+        label="position" keyboardType='default' value={position} 
+        mode='outlined' theme={theme} onChangeText={text => setPosition(text)} />
+
+        <TextInput style={styles.inputStyle}
         label="salery" value={salery} mode='outlined' 
         theme={theme} onChangeText={text => setSalery(text)} />
+
         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-        <Button style={{margin: 5}} icon={ pictue === '' ? "face-profile" : "check"} theme={theme} mode="contained" 
-        onPress={() => setModel(true)}>{pictue === '' ? 'Add Picture' : 'Picture Uploaded'}</Button>
+        <Button style={{margin: 5}} icon={ picture === '' ? "face-profile" : "check"} theme={theme} mode="contained" 
+        onPress={() => setModel(true)}>{picture === '' ? 'Add Picture' : 'Picture Uploaded'}</Button>
 
         <Button style={{margin: 5}} icon="content-save" theme={theme} mode="contained"
-        onPress={() => setModel(true)}>Save</Button>
+        onPress={() => handleSave()}> {props.route.params ? 'update': 'save'} </Button>
         </View>
 
 
@@ -114,7 +170,7 @@ const CreateEmploye = () => {
          </View>  
         </Modal>
          
-        </View>
+        </KeyboardAvoidingView>
       );
 }
 
