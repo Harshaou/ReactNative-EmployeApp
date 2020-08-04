@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Linking, Platform, Alert } from 'react-native';
+import {useSelector, useDispatch} from 'react-redux'
 import { LinearGradient } from 'expo-linear-gradient';
 import { Title, Card, Button } from 'react-native-paper';
 import { MaterialIcons, Feather, FontAwesome } from '@expo/vector-icons';
 
 
 const Profile = (props) => {
-const {_id, name, email, phone, picture, salery, position} = props.route.params
+let {editEmployee } = useSelector(state => state)
+const {_id, name, email, phone, picture, salery, position} = editEmployee
     
     const profile = () => {
         if(Platform.OS === "android"){
@@ -15,6 +17,9 @@ const {_id, name, email, phone, picture, salery, position} = props.route.params
             Linking.openURL(`telpromt: ${phone}`)
         }
     }
+
+    
+    
 
     const deleteContact = (_id) => {
         fetch('https://pacific-earth-03921.herokuapp.com/delete', {
@@ -49,7 +54,7 @@ const {_id, name, email, phone, picture, salery, position} = props.route.params
             })
             .then(res => res.json())
             .then(() => {
-                props.navigation.navigate('Create', props.route.params)
+                props.navigation.navigate('Create', editEmployee)
             })
             .catch(err => console.log(err));
     }

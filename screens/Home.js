@@ -1,27 +1,38 @@
 import React,{useEffect, useState} from 'react';
+import {useSelector, useDispatch} from 'react-redux'
 import { View, StyleSheet, Text, Image, ScrollView, FlatList, ActivityIndicator } from 'react-native';
 import axios from 'axios'
 import {Card, FAB } from 'react-native-paper'
 
 const Home = ({navigation}) => {
-    const [data, setData] = useState([])
-    const [loading, setLoading] = useState(true)
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
 
+  useEffect(() => fetchData())
 
-const fetchData = () => {
-  axios.get('https://pacific-earth-03921.herokuapp.com')
-       .then(res => {
-         setData(res.data)
-         setLoading(false)
-        })
-}    
-    useEffect(() => {
-        fetchData()
-   })
+  const dispatch = useDispatch()
+
+  const fetchData = () => {
+    axios.get('https://pacific-earth-03921.herokuapp.com')
+        .then(res => {
+          setData(res.data)
+          dispatch({type: 'FETCH_DATA', payload: res.data})
+          dispatch({type: 'SET_LOADING', payload: false})
+          setLoading(false)
+          })
+          .catch(err => console.log(err))
+  }    
+      
+const {isLoading, employee} = useSelector(data => data)
+   
 
     const renderList = (item) => {
         return (
-        <Card key={item._id} style={{margin: 5}} onPress={() => navigation.navigate('Profile', item)} >
+        <Card key={item._id} style={{margin: 5}} 
+        onPress={() => {
+          navigation.navigate('Profile', item)
+          dispatch({type: 'EDIT_EMPLOYEE', payload: item})
+          }} >
             <View style={styles.employeeStyle}>
             <Image style={styles.ImgStyle} source={{uri: item.picture}}/>
             
@@ -37,7 +48,7 @@ const fetchData = () => {
       <ScrollView>
         <>
         <FlatList 
-        data={data}
+        data={employee}
         renderItem={({item}) => {
         return renderList(item)
         }}

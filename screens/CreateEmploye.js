@@ -14,6 +14,8 @@ const CreateEmploye = (props) => {
     const [position, setPosition] = useState('');    
     const [picture, setPicture] = useState('');
     const [model, setModel] = useState(false);
+    const [enableShift, setEnableShift] = useState(false);
+    
 
     useEffect(() => {
       handleEdit()
@@ -123,24 +125,25 @@ const CreateEmploye = (props) => {
      
 
     return (
-        <KeyboardAvoidingView behavior={position} style={styles.root}>
-        <TextInput style={styles.inputStyle}
-        label="name" value={name} mode='outlined'
+        <KeyboardAvoidingView behavior='position' style={styles.root} enabled={enableShift}>
+
+        <TextInput style={styles.inputStyle} label="name" 
+        value={name} mode='outlined' onFocus={() => setEnableShift(false)}
         theme={theme} onChangeText={text => setName(text)} />
 
-        <TextInput style={styles.inputStyle}
-        label="email" keyboardType='email-address' value={email}
-        mode='outlined' theme={theme} onChangeText={text => setEmail(text)} />
+        <TextInput style={styles.inputStyle} 
+        label="email" keyboardType='email-address' value={email}  mode='outlined'
+        onFocus={() => setEnableShift(false)} theme={theme} onChangeText={text => setEmail(text)} />
 
-        <TextInput style={styles.inputStyle}
+        <TextInput style={styles.inputStyle} onFocus={() => setEnableShift(false)}
         label="phone" keyboardType='number-pad' value={phone} 
         mode='outlined' theme={theme} onChangeText={text => setPhone(text)} />
 
-        <TextInput style={styles.inputStyle}
+        <TextInput style={styles.inputStyle} onFocus={() => setEnableShift(true)}
         label="position" keyboardType='default' value={position} 
         mode='outlined' theme={theme} onChangeText={text => setPosition(text)} />
 
-        <TextInput style={styles.inputStyle}
+        <TextInput style={styles.inputStyle} onFocus={() => setEnableShift(true)}
         label="salery" value={salery} mode='outlined' 
         theme={theme} onChangeText={text => setSalery(text)} />
 
